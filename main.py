@@ -22,16 +22,30 @@ diversity = [(i, data.count(i)) for i in set(data)]
 n = len(diversity)
 m = sum([i * j for i, j in diversity]) / n
 d = sum([((i - m) ** 2) * j for i, j in diversity]) / n
+
+print("Статистический ряд:")
+for i, j in diversity:
+    print(i, ":\t", j)
+print()
+
 print(f"Выборочное среднее: {m}")
 print(f"Выборочная дисперсия: {d}")
+print(f"Исправленная выборочная дисперсия: {n * d / (n - 1)}")
 print(f"Среднеквадратическое отклонение: {sqrt(d)}")
 print(f"Исправленное выборочное среднеквадратичное отклонение: {sqrt(n * d / (n - 1))}")
-
+print()
 
 # Эмпирическая функция распределения
+# Интервальный ряд
 def f(start, end):
     return sum([j for i, j in diversity if start <= i < end]) / n
 
+print('Эмпирическая функция распределения:')
+last_el = None
+for i in sorted(data):
+    print(f"{f(min(data), i)},\t{f'{last_el} <= ' if last_el else ''}x <= {i}")
+    last_el = i
+print()
 
 x = np.linspace(min(data), max(data), 100)
 y = [f(min(data), i) for i in x]
@@ -45,9 +59,19 @@ h = (max(data) - min(data)) / (1 + math.log2(n))
 x_start = min(data) - h / 2
 x = np.arange(x_start, max(data), h)
 y = [f(i, i + h) for i in x]
+
+print("Интервальный ряд:")
+print("Интервал\t\tЧастота\t\tЧастотность")
+for i in range(len(x) - 1):
+    print(f"({round(x[i], 2)},\t{round(x[i+1], 2)}):\t", end="")
+    print(f"{sum([l for k, l in diversity if x[i] <= k < x[i + 1]])}\t\t\t", end="")
+    print(f"{y[i]}")
+print()
+
 plt.plot(x, y)
 plt.title("Полигон приведенных частот группированной выборки")
 plt.show()
+
 
 # Гистограмма приведенных частот группированной выборки
 h = (max(data) - min(data)) / (1 + math.log2(n))
